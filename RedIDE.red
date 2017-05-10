@@ -12,7 +12,7 @@ tab1: [
                 call append "red.exe -c " t/data/(t/selected) 
             ][                                           
                 print "release";;here we append .red file extension the the name of the tab
-                 call append "red.exe -r " t/data/(t/selected) ;;call via commandline
+                call append "red.exe -r " t/data/(t/selected) ;;call via commandline
             ]
         ] 
         drop-down data: ["Dev" "Release"]
@@ -26,8 +26,7 @@ editor: layout compose/deep/only [
     below
     ;;this works but I would prefer to do it via the window
     ;;button "New File" [ append t/data "tab" append t/pane make face! [type: 'panel pane: layout/only tab1] ]
-    t: tab-panel 550x550 ["tab 1" (tab1) ]
-
+    t: tab-panel 550x550 ["Untitled.red" (tab1) ]
 ]
 
 editor/menu: [
@@ -46,7 +45,7 @@ editor/actors: make object! [
         switch event/picked [
             ;; Copy contents of "tab 1" into every new tab that we create via new file
             newfile   [
-                append t/data "tab"
+                append t/data "newfile.red"
                 append t/pane make face! [type: 'panel pane: layout/only tab1]
             ]
             newName   [
