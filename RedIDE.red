@@ -9,10 +9,10 @@ tab1: [
             write to file! t/data/(t/selected) face/parent/parent/pane/2/text
             either  face/parent/pane/3/data/(face/parent/pane/3/selected) = "Dev" [ ;;use drop down to determine if dev or release
                 print "Dev code path" 
-                call append "red.exe -c " t/data/(t/selected) 
+                call append copy "red.exe -c " t/data/(t/selected) 
             ][                                           
                 print "release";;here we append .red file extension the the name of the tab
-                call append "red.exe -r " t/data/(t/selected) ;;call via commandline
+                call append copy "red.exe -r " t/data/(t/selected) ;;call via commandline
             ]
         ] 
         drop-down data: ["Dev" "Release"]
