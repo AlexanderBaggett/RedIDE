@@ -1,7 +1,7 @@
 Red [needs 'view]
 
 tab1: [
-    below group-box "Actions" [
+    below group-box 460x100 "Actions" [
         origin 20x40                     ;;interpret the contents of the area
         button 75x25 "Interpret" on-click [do face/parent/parent/pane/2/text ]                           
         button 75x25 "Compile" on-click [
@@ -18,8 +18,9 @@ tab1: [
             ]
         ] 
         drop-down data: ["Dev" "Release"]
+        drop-down data: ["MSDOS" "Windows" "WindowsXP" "Linux" "Linux-ARM" "RPi" "Darwin" "Syllable" "FreeBSD" "Android" "Android-x86" ]
     ]
-    area 400x400 
+    area 460x400 
 ]
 
 tabcount: 1
@@ -28,7 +29,7 @@ editor: layout compose/deep/only [
     below
     ;;this works but I would prefer to do it via the window
     ;;button "New File" [ append t/data "tab" append t/pane make face! [type: 'panel pane: layout/only tab1] ]
-    t: tab-panel 550x550 ["Untitled.red" (tab1) ]
+    t: tab-panel 490x570 ["Untitled.red" (tab1) ]
 ]
 
 editor/menu: [
@@ -77,6 +78,5 @@ editor/actors: make object! [
         ]
     ]
 ]
-
+editor/text: "Red IDE"
 view editor
-
