@@ -1,5 +1,14 @@
 Red [needs 'view]
 
+;;keywords: to-block read %keywords.txt this puts the words on different lines
+;;keywords: to-block form read/lines %keywords.txt
+functions: read %functions.txt
+natives:   read %natives.txt
+types:     read %datatypes.txt
+events:    read %events.txt
+
+;; could also do read/lines %keywords.txt and put each word on it's own line in the file itself.
+
 tab1: [
     below group-box 460x100 "Actions" [
         origin 20x40                     ;;interpret the contents of the area
@@ -20,7 +29,16 @@ tab1: [
         drop-down data: ["Dev" "Release"]
         drop-down data: ["MSDOS" "Windows" "WindowsXP" "Linux" "Linux-ARM" "RPi" "Darwin" "Syllable" "FreeBSD" "Android" "Android-x86" ]
     ]
-    area 460x400 
+    ;;going to call a function and hightlight the text probably going write over the text using draw, either that or underline it or something.
+    area 460x400 on-change [
+
+       ;; foreach keyword split keywords " " [
+          ;;  print keyword
+       ;; ]
+       ;; foreach word split face/text " " [
+          ;  print word
+       ;; ]
+    ]
 ]
 
 tabcount: 1
@@ -40,6 +58,9 @@ editor/menu: [
         "Save"   savefile
         "SaveAs" savefile2
         "Quit"   leave
+    ]
+    "Edit" [
+        "Change Font" newfont
     ]
 ] 
 
@@ -75,6 +96,8 @@ editor/actors: make object! [
                 write request-file/save t/pane/(t/selected)/pane/2/text
             ]
             leave [unview]
+
+            newfont [ t/pane/(t/selected)/pane/2/font: request-font ]
         ]
     ]
 ]
