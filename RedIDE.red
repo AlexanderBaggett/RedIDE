@@ -10,7 +10,7 @@ events: read %events.txt
 ;; could also do read/lines %keywords.txt and put each word on it's own line in the file itself.
 
 tab1: [
-    below group-box 460x100 "Actions" [
+    below group-box 500x100 "Actions" [
         origin 20x40                     ;;interpret the contents of the area
         button 75x25 "Interpret" on-click [do face/parent/parent/pane/2/text ]                           
         button 75x25 "Compile" on-click [
@@ -28,46 +28,67 @@ tab1: [
         ] 
         drop-down data: ["Dev" "Release"]
         drop-down data: ["MSDOS" "Windows" "WindowsXP" "Linux" "Linux-ARM" "RPi" "Darwin" "Syllable" "FreeBSD" "Android" "Android-x86" ]
+        button 20x25 ">" [] ;no way to get the selected text of a face for commenting out code
+        button 20x25 "<" []  ;no way to get the selected text of a face for uncommenting out code
     ]
     ;;going to call a function and hightlight the text probably going write over the text using draw, either that or underline it or something.
-    area 460x400 rate 0:0:3 on-time [
+  area 500x400 rate 0:0:3 on-time [
 
+        ;remove previous labels
+        clear  face/parent/pane/3/pane
+        labelOffest: 10x120
 ;; this is a very naive approach to syntax coloring
-
-        foreach word split face/text " " [
-        
-            foreach funcword split functions newline [
-                
-                if to string! funcword = word [
-
-                ]
-            ]
-            foreach nativeword split natives newline [
-
-                if to string! nativeword = word [
+        either face/text = none [
+            ;do nothing if the area is empty
+        ][
+            foreach word split face/text " " [
+            
+                foreach funcword split functions newline [
                     
+                    if to string! funcword = word [
+                        ;this just locks up the UI without actually appending anything
+                        ;append face/parent/pane/3/pane make face! [
+                            ;type: 'text
+                            ;text: word
+                            ;offset: 10x120
+                            ;size: to pair! compose [(2 * length? word) 8]
+                            ;font: make font! [
+                                ;color: 30.30.200
+                                ;size: face/parent/pane/2/text/font/size
+                                ;name: face/parent/pane/2/text/font/name
+                            ]
+                        ]
+                    ]
+                ]
+                foreach nativeword split natives newline [
+
+                    if to string! nativeword = word [
+                        
+                    ]
+                ]
+                foreach eventword split events newline [
+
+                    if to string! eventword = word [
+                        
+                    ]
+                ]
+                foreach typeword split types newline [
+
+                    if to string! typeword = word [
+                        
+                    ]
                 ]
             ]
-            foreach eventword split events newline [
-
-                if to string! eventword = word [
-                    
-                ]
-            ]
-            foreach typeword split types newline [
-
-                if to string! typeword = word [
-                    
-                ]
-            ]
-        ]
 
 
-    ;;foreach word  split functions newline [
-    ;;print word
-    ;;]
+        ;;foreach word  split functions newline [
+        ;;print word
+        ;;]
 
     ]
+  ]
+    ;dummy container for the labels
+    group-box 0x0 "" []
 ]
 
 
@@ -78,7 +99,7 @@ editor: layout compose/deep/only [
     below
     ;;this works but I would prefer to do it via the window
     ;;button "New File" [ append t/data "tab" append t/pane make face! [type: 'panel pane: layout/only tab1] ]
-    t: tab-panel 490x570 ["Untitled.red" (tab1) ]
+    t: tab-panel 530x590 ["Untitled.red" (tab1) ]
 ]
 
 editor/menu: [
