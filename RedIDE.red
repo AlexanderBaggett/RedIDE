@@ -3,9 +3,9 @@ Red [needs 'view]
 ;;keywords: to-block read %keywords.txt this puts the words on different lines
 ;;keywords: to-block form read/lines %keywords.txt
 functions: read %functions.txt
-natives:   read %natives.txt
-types:     read %datatypes.txt
-events:    read %events.txt
+natives: read %natives.txt
+types: read %datatypes.txt
+events: read %events.txt
 
 ;; could also do read/lines %keywords.txt and put each word on it's own line in the file itself.
 
@@ -30,16 +30,51 @@ tab1: [
         drop-down data: ["MSDOS" "Windows" "WindowsXP" "Linux" "Linux-ARM" "RPi" "Darwin" "Syllable" "FreeBSD" "Android" "Android-x86" ]
     ]
     ;;going to call a function and hightlight the text probably going write over the text using draw, either that or underline it or something.
-    area 460x400 on-change [
+    area 460x400 rate 0:0:3 on-time [
 
-       ;; foreach keyword split keywords " " [
-          ;;  print keyword
-       ;; ]
-       ;; foreach word split face/text " " [
-          ;  print word
-       ;; ]
+;; this is a very naive approach to syntax coloring
+
+;;if it's not blank
+       if not-equal? face/text none [
+       
+            foreach word split face/text " " [
+            
+                foreach funcword split functions newline [
+                    
+                    if to string! funcword = word [
+
+                    ]
+                ]
+                foreach nativeword split natives newline [
+
+                    if to string! nativeword = word [
+                        
+                    ]
+                ]
+                foreach eventword split events newline [
+
+                    if to string! eventword = word [
+                        
+                    ]
+                ]
+                foreach typeword split types newline [
+
+                    if to string! typeword = word [
+                        
+                    ]
+                ]
+            ]
+       ]
+
+
+    ;;foreach word  split functions newline [
+    ;;print word
+    ;;]
+
     ]
 ]
+
+
 
 tabcount: 1
 
@@ -101,5 +136,6 @@ editor/actors: make object! [
         ]
     ]
 ]
+
 editor/text: "Red IDE"
 view editor
