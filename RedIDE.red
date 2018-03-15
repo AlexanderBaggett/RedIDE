@@ -1,4 +1,4 @@
-Red [needs 'view]
+Red [Needs 'View]
 
 ;;keywords: to-block read %keywords.txt this puts the words on different lines
 ;;keywords: to-block form read/lines %keywords.txt
@@ -30,14 +30,26 @@ tab1: [
         drop-down data: ["MSDOS" "Windows" "WindowsXP" "Linux" "Linux-ARM" "RPi" "Darwin" "Syllable" "FreeBSD" "Android" "Android-x86" ]
     ]
     ;;going to call a function and hightlight the text probably going write over the text using draw, either that or underline it or something.
-    area 460x400 rate 0:0:3 on-time [
-
+    a: area 460x400 rate 0:0:3 on-time [
+        ;editor/pane/1/pane/1/pane/3/offset: 10x121  ;set overlay to overlap this textarea
 ;; this is a very naive approach to syntax coloring
 
 ;;if it's not blank
        if not-equal? face/text none [
+
+
+           foreach line split face/text to string! newline [
+
+               firstchar: first line
+               if firstchar = ";" [
+                   ;a/draw [ text 20x20 reduce [line] ]
+                    a/draw [
+                    ]
+
+               ]
+           ]
        
-            foreach word split face/text " " [
+           { foreach word split face/text " " [
             
                 foreach funcword split functions newline [
                     
@@ -63,7 +75,8 @@ tab1: [
                         
                     ]
                 ]
-            ]
+            ] 
+            }
        ]
 
 
@@ -72,6 +85,9 @@ tab1: [
     ;;]
 
     ]
+    overlay: base 90.90.90.200 460x400 on-down [
+       editor/pane/1/pane/1/pane/2/selected: true  ;select the area if the base is clicked on
+        ]
 ]
 
 
@@ -92,6 +108,7 @@ editor/menu: [
         "Load"   loadfile
         "Save"   savefile
         "SaveAs" savefile2
+        "Close"  closefile
         "Quit"   leave
     ]
     "Edit" [
@@ -118,9 +135,14 @@ editor/actors: make object! [
             ;;we are updating the value of the active tab's area to contain the contents of the file
             loadfile  [
                 print "loading"
-                read file: request-file
+                filename: request-file
+                read file: filename
                 ; 'name now has filename
-                replace t/pane/(t/selected)/2/text file
+                ;replace t/pane/(t/selected)/2/text file
+                append t/data  last split to string!  filename "/"
+                append t/pane make face! [type: 'panel pane: layout/only tab1]
+                ;replace t/pane/(t/selected)/2/text file
+                t/pane/(t/selected)/pane/2/text: file
             ] ; 
             savefile  [
                 print "saving" ;;write the contents of the area to a file using the name of the tab as the filename
@@ -133,9 +155,20 @@ editor/actors: make object! [
             leave [unview]
 
             newfont [ t/pane/(t/selected)/pane/2/font: request-font ]
+            closefile [
+                ;remove the selected tab header, and data from both series via exclude
+               t/data: exclude t/data reduce [t/data/(t/selected)]
+               t/pane: exclude t/pane reduce [t/pane/(t/selected)]
+            ]
         ]
     ]
 ]
 
 editor/text: "Red IDE"
-view editor
+;editor/pane/1/pane/1/pane/3/offset: 10x121 ;set offest of base to be same as area
+view/tight editor
+
+;        editor/pane/1/pane/1/pane/3/offset   = offset of base =10x531
+; offest of area = 10x121
+;editor/pane/1/pane/1/pane/3/offset: 10x121 worked
+
