@@ -18,7 +18,7 @@ highlight: func  [surface area][
         ]
         ;primitive syntax highlighting for comments;
         startingHeight: 2;
-        startingX: 5;
+        startingX: 4;
         lineHeight: 15
 
         foreach line split area/text to string! newline [
@@ -26,7 +26,7 @@ highlight: func  [surface area][
             if not-equal? first line none [
                 firstchar: to string! first line
                 if  firstchar = ";" [
-                    append surface/draw compose [ pen green  text (make pair! reduce [startingX startingHeight]) (line) ]  ;;need posiition for text call
+                    append surface/draw compose [ pen 45.120.25  text (make pair! reduce [startingX startingHeight]) (line) ]  ;;need posiition for text call
                 ]
             ]
             startingHeight: startingHeight + lineHeight
