@@ -9,8 +9,35 @@ events: read %events.txt
 
 ;; could also do read/lines %keywords.txt and put each word on it's own line in the file itself.
 
+textAreaSize: 535x400
+
+highlight: func  [surface area][
+    if not-equal? area/text none [
+        if type? surface/draw = none [
+            surface/draw: make block! []
+        ]
+        ;primitive syntax highlighting for comments;
+        startingHeight: 2;
+        startingX: 5;
+        lineHeight: 15
+
+        foreach line split area/text to string! newline [
+            ;color comments
+            if not-equal? first line none [
+                firstchar: to string! first line
+                if  firstchar = ";" [
+                    append surface/draw compose [ pen green  text (make pair! reduce [startingX startingHeight]) (line) ]  ;;need posiition for text call
+                ]
+            ]
+            startingHeight: startingHeight + lineHeight
+        ]
+    ]
+]
+
+
+
 tab1: [
-    below group-box 460x100 "Actions" [
+    below group-box 535x100 "Actions" [
         origin 20x40                     ;;interpret the contents of the area
         button 75x25 "Interpret" on-click [do face/parent/parent/pane/2/text ]                           
         button 75x25 "Compile" on-click [
@@ -25,29 +52,32 @@ tab1: [
                 call/wait/shell/output append copy "red.exe -r " t/data/(t/selected) out: copy "" /output ;;call via commandline
                 print out
             ]
+        ]
+        button 75x25 "Highlight" [
+                
+                either face/parent/parent/pane/3/offset = 10x121 [
+                        face/parent/parent/pane/3/offset: 10x521
+                ][
+                        face/parent/parent/pane/3/offset: 10x121
+                        highlight face/parent/parent/pane/3 face/parent/parent/pane/2
+                ]
         ] 
         drop-down data: ["Dev" "Release"]
         drop-down data: ["MSDOS" "Windows" "WindowsXP" "Linux" "Linux-ARM" "RPi" "Darwin" "Syllable" "FreeBSD" "Android" "Android-x86" ]
     ]
+
+
+
     ;;going to call a function and hightlight the text probably going write over the text using draw, either that or underline it or something.
-    a: area 460x400 rate 0:0:3 on-time [
-        ;editor/pane/1/pane/1/pane/3/offset: 10x121  ;set overlay to overlap this textarea
+    a: area 255.255.255  textAreaSize rate 0:0:3 on-time [
+    ;face/parent/pane/3/offset: 10x125
+    ;editor/pane/1/pane/1/pane/3/offset: 10x121 
+    ;t/pane/(t/selected)/pane/3/offest: 10x121 ;set overlay to overlap this textarea
 ;; this is a very naive approach to syntax coloring
 
 ;;if it's not blank
        if not-equal? face/text none [
 
-
-           foreach line split face/text to string! newline [
-
-               firstchar: first line
-               if firstchar = ";" [
-                   ;a/draw [ text 20x20 reduce [line] ]
-                    a/draw [
-                    ]
-
-               ]
-           ]
        
            { foreach word split face/text " " [
             
@@ -78,19 +108,12 @@ tab1: [
             ] 
             }
        ]
-
-
-    ;;foreach word  split functions newline [
-    ;;print word
-    ;;]
-
+  
     ]
-    overlay: base 90.90.90.200 460x400 on-down [
-       editor/pane/1/pane/1/pane/2/selected: true  ;select the area if the base is clicked on
+    overlay: base 90.90.90.130 textAreaSize on-down [
+         face/parent/pane/2/selected: true
         ]
 ]
-
-
 
 tabcount: 1
 
@@ -98,7 +121,7 @@ editor: layout compose/deep/only [
     below
     ;;this works but I would prefer to do it via the window
     ;;button "New File" [ append t/data "tab" append t/pane make face! [type: 'panel pane: layout/only tab1] ]
-    t: tab-panel 490x570 ["Untitled.red" (tab1) ]
+    t: tab-panel 565x570 ["Untitled.red" (tab1) ]
 ]
 
 editor/menu: [
@@ -130,19 +153,17 @@ editor/actors: make object! [
                         t/data/(t/selected): name/text 
                         unview
                     ]
+                    button "Cancel" [unview]
                 ]
             ]
-            ;;we are updating the value of the active tab's area to contain the contents of the file
+            ;;we are loading the file in a new tab and setting the header to the name of the file
             loadfile  [
                 print "loading"
                 filename: request-file
                 read file: filename
-                ; 'name now has filename
-                ;replace t/pane/(t/selected)/2/text file
                 append t/data  last split to string!  filename "/"
                 append t/pane make face! [type: 'panel pane: layout/only tab1]
-                ;replace t/pane/(t/selected)/2/text file
-                t/pane/(t/selected)/pane/2/text: file
+                t/pane/(t/selected)/pane/3/text: file
             ] ; 
             savefile  [
                 print "saving" ;;write the contents of the area to a file using the name of the tab as the filename
@@ -156,19 +177,20 @@ editor/actors: make object! [
 
             newfont [ t/pane/(t/selected)/pane/2/font: request-font ]
             closefile [
-                ;remove the selected tab header, and data from both series via exclude
-               t/data: exclude t/data reduce [t/data/(t/selected)]
-               t/pane: exclude t/pane reduce [t/pane/(t/selected)]
+                either  (length? t/data) = 1 [
+                    t/pane/1/pane/2/text: ""
+                    t/data/1: "untitled.red"
+                ][
+                    ;remove the selected tab header, and data from both series via exclude
+                    t/data: exclude t/data reduce [t/data/(t/selected)]
+                    t/pane: exclude t/pane reduce [t/pane/(t/selected)]
+                ]
             ]
         ]
     ]
 ]
 
 editor/text: "Red IDE"
-;editor/pane/1/pane/1/pane/3/offset: 10x121 ;set offest of base to be same as area
 view/tight editor
 
-;        editor/pane/1/pane/1/pane/3/offset   = offset of base =10x531
-; offest of area = 10x121
-;editor/pane/1/pane/1/pane/3/offset: 10x121 worked
 
