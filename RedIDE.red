@@ -1,4 +1,4 @@
-Red [needs 'view]
+Red [Needs 'View]
 
 ;;keywords: to-block read %keywords.txt this puts the words on different lines
 ;;keywords: to-block form read/lines %keywords.txt
@@ -8,9 +8,81 @@ types: read %datatypes.txt
 events: read %events.txt
 
 ;; could also do read/lines %keywords.txt and put each word on it's own line in the file itself.
+WinFont: make font! [size: 10 name: "Consolas"]
+LinFont: make font! [size: 10 name: "Monospace"]
+MacFont: make font! [size: 12 name: "Menlo-Regular"]
+
+CurentFont: none
+switch system/platform [
+    "Windows" [CurentFont: WinFont]
+    "Linux"   [CurentFont: LinFont]
+    "MacOs"   [CurentFont: MacFont]
+]
+
+areaColor: 255.255.255
+textAreaSize: 535x400
+
+highlight: func  [surface area][
+    if not-equal? area/text none [
+        if type? surface/draw = none [
+            surface/draw: make block! []
+        ]
+
+        ;would eventually like these to be calculated based off of the font size.
+        lineHeight: 15
+        charWidth:  7
+        letterspace: 5
+
+        ;primitive syntax highlighting for comments;
+        highlightComments surface area lineHeight charWidth
+      
+    ]
+]
+
+highlightComments: func [surface area lineHeight charWidth] [
+
+    startingHeight: 4
+    startingX: 4
+    currentX: startingX
+
+    foreach line split area/text to string! newline [
+        ;color comments
+        if not-equal? first line none [
+            firstchar: to string! first line
+            if  firstchar = ";" [
+                append surface/draw compose [ pen 45.120.25 ]   ;;need posiition for text call  append surface/draw compose [ pen 45.120.25 font WinFont]
+                    append surface/draw compose [text (make pair! reduce [startingX startingHeight]) (to string! line) ] 
+            ]
+        ]
+        startingHeight: startingHeight + lineHeight
+    ]
+]
+
+highlightWords: func [surface area lineHeight charWidth] [
+
+    startingHeight: 3
+    startingX: 4
+    currentX: startingX
+
+    foreach line split area/text to string! newline [
+        ;color comments
+        if not-equal? first line none [
+            firstchar: to string! first line
+            if  firstchar = ";" [
+                    append surface/draw compose [ pen 45.120.25 font WinFont]   ;;need posiition for text call
+                    append surface/draw compose [text (make pair! reduce [currentX startingHeight]) (to string! letter) ] 
+                    currentX: currentX + charWidth
+                ]
+            ]
+        ]
+        startingHeight: startingHeight + lineHeight
+    ]
+]
+
+
 
 tab1: [
-    below group-box 500x100 "Actions" [
+    below group-box 535x100 "Actions" [
         origin 20x40                     ;;interpret the contents of the area
         button 75x25 "Interpret" on-click [do face/parent/parent/pane/2/text ]                           
         button 75x25 "Compile" on-click [
@@ -25,39 +97,42 @@ tab1: [
                 call/wait/shell/output append copy "red.exe -r " t/data/(t/selected) out: copy "" /output ;;call via commandline
                 print out
             ]
+        ]
+        button 75x25 "Highlight" [
+                
+                either face/parent/parent/pane/3/offset = 10x121 [
+                        face/parent/parent/pane/3/offset: 10x521
+                        face/parent/parent/pane/3/draw: none
+                ][
+                        face/parent/parent/pane/3/offset: 10x121
+                        highlight face/parent/parent/pane/3 face/parent/parent/pane/2
+                ]
         ] 
         drop-down data: ["Dev" "Release"]
         drop-down data: ["MSDOS" "Windows" "WindowsXP" "Linux" "Linux-ARM" "RPi" "Darwin" "Syllable" "FreeBSD" "Android" "Android-x86" ]
-        button 20x25 ">" [] ;no way to get the selected text of a face for commenting out code
-        button 20x25 "<" []  ;no way to get the selected text of a face for uncommenting out code
     ]
-    ;;going to call a function and hightlight the text probably going write over the text using draw, either that or underline it or something.
-  area 500x400 rate 0:0:3 on-time [
 
-        ;remove previous labels
-        clear  face/parent/pane/3/pane
-        labelOffest: 10x120
+
+
+    ;;going to call a function and hightlight the text probably going write over the text using draw, either that or underline it or something.
+    a: area 255.255.255  textAreaSize   rate 0:0:3 on-time [
+    ;with [font: WinFont] 
+                                  
+    ;face/parent/pane/3/offset: 10x125
+    ;editor/pane/1/pane/1/pane/3/offset: 10x121 
+    ;t/pane/(t/selected)/pane/3/offest: 10x121 ;set overlay to overlap this textarea
 ;; this is a very naive approach to syntax coloring
-        either face/text = none [
-            ;do nothing if the area is empty
-        ][
-            foreach word split face/text " " [
+
+;;if it's not blank
+       if not-equal? face/text none [
+
+       
+           { foreach word split face/text " " [
             
                 foreach funcword split functions newline [
                     
                     if to string! funcword = word [
-                        ;this just locks up the UI without actually appending anything
-                        ;append face/parent/pane/3/pane make face! [
-                            ;type: 'text
-                            ;text: word
-                            ;offset: 10x120
-                            ;size: to pair! compose [(2 * length? word) 8]
-                            ;font: make font! [
-                                ;color: 30.30.200
-                                ;size: face/parent/pane/2/text/font/size
-                                ;name: face/parent/pane/2/text/font/name
-                            ]
-                        ]
+
                     ]
                 ]
                 foreach nativeword split natives newline [
@@ -78,20 +153,15 @@ tab1: [
                         
                     ]
                 ]
-            ]
-
-
-        ;;foreach word  split functions newline [
-        ;;print word
-        ;;]
-
+            ] 
+            }
+       ]
+  
     ]
-  ]
-    ;dummy container for the labels
-    group-box 0x0 "" []
+    overlay: base 170.170.170.255 textAreaSize on-down [
+         face/parent/pane/2/selected: true
+        ]
 ]
-
-
 
 tabcount: 1
 
@@ -99,7 +169,7 @@ editor: layout compose/deep/only [
     below
     ;;this works but I would prefer to do it via the window
     ;;button "New File" [ append t/data "tab" append t/pane make face! [type: 'panel pane: layout/only tab1] ]
-    t: tab-panel 530x590 ["Untitled.red" (tab1) ]
+    t: tab-panel 565x570 ["Untitled.red" (tab1) ]
 ]
 
 editor/menu: [
@@ -109,10 +179,12 @@ editor/menu: [
         "Load"   loadfile
         "Save"   savefile
         "SaveAs" savefile2
+        "Close"  closefile
         "Quit"   leave
     ]
     "Edit" [
         "Change Font" newfont
+        "Change BG Color" newBgColor
     ]
 ] 
 
@@ -130,14 +202,17 @@ editor/actors: make object! [
                         t/data/(t/selected): name/text 
                         unview
                     ]
+                    button "Cancel" [unview]
                 ]
             ]
-            ;;we are updating the value of the active tab's area to contain the contents of the file
+            ;;we are loading the file in a new tab and setting the header to the name of the file
             loadfile  [
                 print "loading"
-                read file: request-file
-                ; 'name now has filename
-                replace t/pane/(t/selected)/2/text file
+                filename: request-file
+                read file: filename
+                append t/data  last split to string!  filename "/"
+                append t/pane make face! [type: 'panel pane: layout/only tab1]
+                t/pane/(t/selected)/pane/3/text: file
             ] ; 
             savefile  [
                 print "saving" ;;write the contents of the area to a file using the name of the tab as the filename
@@ -150,9 +225,35 @@ editor/actors: make object! [
             leave [unview]
 
             newfont [ t/pane/(t/selected)/pane/2/font: request-font ]
+
+            newBgColor [
+                do view [
+                    text "R" r: field return
+                    text "G" g: field return
+                    text "B" b: field return
+                    button "Done" [
+                        t/pane/(t/selected)/pane/2/color: as-color to Integer! r/text  to Integer! g/text  to Integer! b/text
+                        [unview]
+                    ]
+                    button "Cancel" [unview]
+                ]
+            ]
+
+            closefile [
+                either  (length? t/data) = 1 [
+                    t/pane/1/pane/2/text: ""
+                    t/data/1: "untitled.red"
+                ][
+                    ;remove the selected tab header, and data from both series via exclude
+                    t/data: exclude t/data reduce [t/data/(t/selected)]
+                    t/pane: exclude t/pane reduce [t/pane/(t/selected)]
+                ]
+            ]
         ]
     ]
 ]
 
 editor/text: "Red IDE"
-view editor
+view/tight editor
+
+
