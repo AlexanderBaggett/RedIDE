@@ -62,8 +62,8 @@ tab1: [
                         highlight face/parent/parent/pane/3 face/parent/parent/pane/2
                 ]
         ] 
-        drop-down data: ["Dev" "Release"]
-        drop-down data: ["MSDOS" "Windows" "WindowsXP" "Linux" "Linux-ARM" "RPi" "Darwin" "Syllable" "FreeBSD" "Android" "Android-x86" ]
+        drop-down data ["Dev" "Release"]
+        drop-down data ["MSDOS" "Windows" "WindowsXP" "Linux" "Linux-ARM" "RPi" "Darwin" "Syllable" "FreeBSD" "Android" "Android-x86" ]
     ]
 
 
